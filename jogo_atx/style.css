@@ -1,0 +1,608 @@
+/* ════════════════════════════════════════
+   LIXO ELETRÔNICO — style.css
+   ════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
+
+/* ── RESET & BASE ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #070b18;
+  font-family: 'Rajdhani', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ════════════════════════════════════════
+   WRAPPER GERAL
+   ════════════════════════════════════════ */
+#game-wrapper {
+  position: relative;
+  width: 920px;
+  height: 600px;
+  display: flex;
+  gap: 12px;
+}
+
+/* ════════════════════════════════════════
+   BARRA LATERAL DE PONTOS
+   ════════════════════════════════════════ */
+#sidebar {
+  width: 62px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#recycle-icon {
+  width: 58px;
+  height: 58px;
+  background: radial-gradient(circle at 40% 40%, #1c3d72, #0b1c3a);
+  border: 3px solid #00ff88;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 0 18px #00ff8855, inset 0 0 10px #00000060;
+  flex-shrink: 0;
+}
+
+#score-bar-wrap {
+  flex: 1;
+  width: 34px;
+  background: #0d1525;
+  border: 2px solid #00ff8830;
+  border-radius: 17px;
+  position: relative;
+  overflow: hidden;
+}
+
+#score-bar-fill {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(to top, #00c853, #69ff47, #ccff90);
+  border-radius: 15px;
+  transition: height 0.5s cubic-bezier(.4, 2.2, .6, 1);
+  box-shadow: 0 0 14px #00ff8866;
+}
+
+#score-bar-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  color: #00ff8870;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+#score-num-side {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: #00ff88aa;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════
+   ÁREA DO JOGO
+   ════════════════════════════════════════ */
+#game-area {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid #1a3356;
+  box-shadow: 0 0 50px #0033ff18, inset 0 0 60px #00000060;
+}
+
+/* background com grid tech */
+#bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 80%, #162a4a 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 20%, #0d2040 0%, transparent 45%),
+    #090f1f;
+  z-index: 0;
+}
+#bg::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,200,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+#bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,180,255,0.06) 0%, transparent 60%);
+}
+
+/* ════════════════════════════════════════
+   HUD
+   ════════════════════════════════════════ */
+#hud {
+  position: absolute;
+  top: 10px; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+  z-index: 30;
+}
+
+.hud-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid;
+  letter-spacing: 1px;
+}
+
+.hud-score {
+  background: #0a1e3acc;
+  border-color: #1976d2;
+  color: #e3f2fd;
+  box-shadow: 0 0 12px #1976d230;
+}
+
+.hud-errors {
+  background: #270a0acc;
+  border-color: #c62828;
+  color: #ffebee;
+  box-shadow: 0 0 12px #c6282830;
+}
+
+.hud-val {
+  color: #ffd600;
+  min-width: 24px;
+  text-align: right;
+}
+
+#lives-wrap {
+  display: flex;
+  gap: 4px;
+  font-size: 18px;
+}
+
+.life { transition: opacity 0.3s, transform 0.3s; }
+.life.dead { opacity: 0.15; transform: scale(0.7); filter: grayscale(1); }
+
+/* ── TIMER ── */
+#timer-bar-wrap {
+  position: absolute;
+  top: 50px; left: 14px; right: 14px;
+  height: 5px;
+  background: #0d1525;
+  border-radius: 3px;
+  z-index: 28;
+  overflow: hidden;
+}
+#timer-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #1565c0, #00e5ff);
+  border-radius: 3px;
+  transition: width 0.1s linear, background 0.4s;
+}
+
+/* ════════════════════════════════════════
+   CANHÃO NO TOPO — aponta para baixo
+   ════════════════════════════════════════ */
+#cannon-wrap {
+  position: absolute;
+  top: 58px;
+  left: 0; right: 0;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* trilho / trilha horizontal */
+#cannon-rail {
+  width: 100%;
+  height: 20px;
+  background:
+    linear-gradient(180deg, #1a2a44 0%, #0d1830 100%);
+  border-top: 2px solid #2a4a7a;
+  border-bottom: 2px solid #0a1020;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* parafusos decorativos do trilho */
+#cannon-rail::before,
+#cannon-rail::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #2a3f60;
+  border: 1px solid #3a5a88;
+  top: 50%; transform: translateY(-50%);
+}
+#cannon-rail::before { left: 12px; }
+#cannon-rail::after  { right: 12px; }
+
+/* carrinho que desliza pelo trilho */
+#cannon-cart {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left 0.35s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* corpo/base do canhão */
+#cannon-base {
+  width: 56px;
+  height: 26px;
+  background: linear-gradient(135deg, #3a5068, #546e7a, #3a5068);
+  border-radius: 8px 8px 0 0;
+  border: 2px solid #607d8b;
+  box-shadow: 0 -4px 10px #00bcd420;
+  position: relative;
+  z-index: 2;
+}
+#cannon-base::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 62px; height: 8px;
+  background: #263238;
+  border-radius: 0 0 6px 6px;
+  border: 1px solid #37474f;
+}
+
+/* cano — aponta PARA BAIXO */
+#cannon-barrel {
+  width: 28px;
+  height: 56px;
+  background: linear-gradient(to right, #455a64, #b0bec5, #455a64);
+  border-radius: 0 0 6px 6px;
+  border: 2px solid #607d8b;
+  border-top: none;
+  box-shadow: inset 0 4px 8px #00000050, 0 0 10px #00bcd430;
+  position: relative;
+  order: 1; /* fica abaixo da base */
+  z-index: 1;
+  transform-origin: top center;
+  transition: transform 0.2s cubic-bezier(.4, 0, .2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+#barrel-ring {
+  width: 34px; height: 8px;
+  background: linear-gradient(to right, #37474f, #78909c, #37474f);
+  border-radius: 3px;
+  border: 1px solid #90a4ae;
+  margin-bottom: 4px;
+}
+
+#barrel-tip {
+  width: 28px; height: 6px;
+  background: #78909c;
+  border-radius: 0 0 5px 5px;
+}
+
+/* item atual flutuando na ponta do canhão */
+#current-bubble {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: 2px solid rgba(255,255,255,0.25);
+  box-shadow: 0 0 16px rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  order: 2; /* abaixo do cano */
+  margin-top: 4px;
+  animation: bubblePulse 1.2s ease-in-out infinite;
+  position: relative;
+  z-index: 3;
+}
+
+@keyframes bubblePulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 10px rgba(255,255,255,0.15); }
+  50%       { transform: scale(1.1); box-shadow: 0 0 22px rgba(255,255,255,0.35); }
+}
+
+/* nome do item atual */
+#item-name-label {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #90a4ae;
+  text-transform: uppercase;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ── LINHA DE MIRA ── */
+#aim-line {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════
+   PRÓXIMO ITEM
+   ════════════════════════════════════════ */
+#next-wrap {
+  position: absolute;
+  top: 62px;
+  right: 14px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+#next-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #546e7a;
+  text-transform: uppercase;
+}
+#next-box {
+  width: 46px; height: 46px;
+  border-radius: 10px;
+  background: #0d1525;
+  border: 2px solid #1e3356;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+/* ════════════════════════════════════════
+   LIXEIRAS
+   ════════════════════════════════════════ */
+#bins {
+  position: absolute;
+  bottom: 0;
+  left: 0; right: 0;
+  height: 148px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 18px 0 18px;
+  z-index: 22;
+}
+
+.bin {
+  flex: 1;
+  max-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s;
+}
+.bin:hover { transform: translateY(-6px); }
+.bin:active { transform: translateY(-2px) scale(0.97); }
+
+.bin-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 3px;
+  text-shadow: 0 0 8px currentColor;
+}
+
+.bin-lid {
+  width: 98px;
+  height: 14px;
+  border-radius: 6px 6px 0 0;
+  border: 2px solid;
+  border-bottom: none;
+}
+
+.bin-body {
+  width: 92px;
+  height: 86px;
+  border-radius: 0 0 14px 14px;
+  border: 3px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+
+.bin-hint {
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4;
+  margin-top: 4px;
+  opacity: 0.5;
+  letter-spacing: 0.5px;
+}
+
+/* Cores individuais */
+.bin-azul   .bin-label { color: #42a5f5; }
+.bin-azul   .bin-lid   { background: #1565c0; border-color: #1e88e5; }
+.bin-azul   .bin-body  { background: #081e36; border-color: #1565c0; box-shadow: 0 0 16px #1565c050; }
+.bin-azul   .bin-hint  { color: #42a5f5; }
+
+.bin-verde  .bin-label { color: #66bb6a; }
+.bin-verde  .bin-lid   { background: #2e7d32; border-color: #43a047; }
+.bin-verde  .bin-body  { background: #082010; border-color: #2e7d32; box-shadow: 0 0 16px #2e7d3250; }
+.bin-verde  .bin-hint  { color: #66bb6a; }
+
+.bin-marrom .bin-label { color: #bcaaa4; }
+.bin-marrom .bin-lid   { background: #5d4037; border-color: #795548; }
+.bin-marrom .bin-body  { background: #1c1008; border-color: #5d4037; box-shadow: 0 0 16px #5d403750; }
+.bin-marrom .bin-hint  { color: #bcaaa4; }
+
+.bin-branca .bin-label { color: #e0e0e0; }
+.bin-branca .bin-lid   { background: #757575; border-color: #9e9e9e; }
+.bin-branca .bin-body  { background: #141420; border-color: #757575; box-shadow: 0 0 16px #75757540; }
+.bin-branca .bin-hint  { color: #e0e0e0; }
+
+/* ── FEEDBACK DE ACERTO / ERRO ── */
+.bin-body.hit-correct {
+  animation: hitCorrect 0.45s ease;
+}
+@keyframes hitCorrect {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.14); filter: brightness(1.8); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.bin-body.hit-wrong {
+  animation: hitWrong 0.4s ease;
+}
+@keyframes hitWrong {
+  0%, 100% { transform: translateX(0); }
+  20%  { transform: translateX(-7px); }
+  60%  { transform: translateX(7px); }
+}
+
+/* ════════════════════════════════════════
+   PROJÉTIL
+   ════════════════════════════════════════ */
+.projectile {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  z-index: 24;
+  pointer-events: none;
+  background: rgba(0,0,0,0.55);
+  border: 2px solid rgba(255,255,255,0.3);
+  box-shadow: 0 0 14px rgba(255,255,255,0.18);
+}
+
+/* ════════════════════════════════════════
+   PARTÍCULAS & FLOAT SCORE
+   ════════════════════════════════════════ */
+.particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 17px;
+  z-index: 40;
+  animation: particleFly 0.75s ease-out forwards;
+}
+@keyframes particleFly {
+  0%   { opacity: 1; transform: translate(0,0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.2); }
+}
+
+.float-score {
+  position: absolute;
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 45;
+  animation: floatUp 0.9s ease forwards;
+  white-space: nowrap;
+}
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  60%  { opacity: 1; transform: translateY(-40px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-75px) scale(0.8); }
+}
+
+/* ════════════════════════════════════════
+   OVERLAY (início / fim de jogo)
+   ════════════════════════════════════════ */
+#overlay {
+  position: absolute; inset: 0;
+  background: rgba(4, 8, 22, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  gap: 16px;
+}
+
+#overlay-icon {
+  font-size: 52px;
+  animation: spinIcon 3s linear infinite;
+}
+@keyframes spinIcon {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+#overlay h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: 40px;
+  color: #00ff88;
+  text-shadow: 0 0 24px #00ff88, 0 0 60px #00ff8840;
+  letter-spacing: 6px;
+}
+
+#overlay p {
+  color: #78909c;
+  font-size: 17px;
+  text-align: center;
+  line-height: 1.7;
+}
+#overlay p strong { color: #ffd600; }
+
+#overlay-btn {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 13px 40px;
+  border: 2px solid #00ff88;
+  background: transparent;
+  color: #00ff88;
+  border-radius: 30px;
+  cursor: pointer;
+  letter-spacing: 3px;
+  transition: all 0.25s;
+  margin-top: 4px;
+}
+#overlay-btn:hover {
+  background: #00ff88;
+  color: #070b18;
+  box-shadow: 0 0 24px #00ff88;
+  transform: scale(1.05);
+}

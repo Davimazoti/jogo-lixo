@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lixo Eletrônico — Recicle!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-wrapper">
+
+  <!-- ── BARRA LATERAL DE PONTOS ── -->
+  <div id="sidebar">
+    <div id="recycle-icon">♻️</div>
+    <div id="score-bar-wrap">
+      <div id="score-bar-fill"></div>
+      <div id="score-bar-label">PONTOS</div>
+    </div>
+    <div id="score-num-side">0</div>
+  </div>
+
+  <!-- ── ÁREA PRINCIPAL ── -->
+  <div id="game-area">
+    <div id="bg"></div>
+
+    <!-- HUD topo -->
+    <div id="hud">
+      <div class="hud-pill hud-score">
+        ⚡ PONTOS <span class="hud-val" id="score-val">0</span>
+      </div>
+      <div id="lives-wrap">
+        <span class="life" id="l0">❤️</span>
+        <span class="life" id="l1">❤️</span>
+        <span class="life" id="l2">❤️</span>
+        <span class="life" id="l3">❤️</span>
+        <span class="life" id="l4">❤️</span>
+      </div>
+      <div class="hud-pill hud-errors">
+        ✕ ERROS <span class="hud-val" id="errors-val">0</span>
+      </div>
+    </div>
+
+    <!-- Timer bar -->
+    <div id="timer-bar-wrap">
+      <div id="timer-bar"></div>
+    </div>
+
+    <!-- ── CANHÃO NO TOPO ── -->
+    <div id="cannon-wrap">
+      <!-- trilho horizontal -->
+      <div id="cannon-rail">
+        <div id="cannon-cart">
+          <!-- cano aponta para BAIXO -->
+          <div id="cannon-base"></div>
+          <div id="cannon-barrel">
+            <div id="barrel-ring"></div>
+            <div id="barrel-tip"></div>
+          </div>
+          <!-- item atual dentro/na frente do canhão -->
+          <div id="current-bubble">
+            <span id="current-emoji"></span>
+          </div>
+        </div>
+      </div>
+      <!-- nome do item -->
+      <div id="item-name-label"></div>
+    </div>
+
+    <!-- Próximo item -->
+    <div id="next-wrap">
+      <div id="next-label">PRÓXIMO</div>
+      <div id="next-box"><span id="next-emoji"></span></div>
+    </div>
+
+    <!-- Linha de mira visual (tracejada) -->
+    <canvas id="aim-line"></canvas>
+
+    <!-- LIXEIRAS na base -->
+    <div id="bins">
+      <div class="bin bin-azul"   data-cat="azul"   onclick="Game.shoot('azul')">
+        <div class="bin-label">LINHA AZUL</div>
+        <div class="bin-lid azul-lid"></div>
+        <div class="bin-body">♻️</div>
+        <div class="bin-hint">Eletrodomésticos<br>pequenos e ferramentas</div>
+      </div>
+      <div class="bin bin-verde"  data-cat="verde"  onclick="Game.shoot('verde')">
+        <div class="bin-label">LINHA VERDE</div>
+        <div class="bin-lid verde-lid"></div>
+        <div class="bin-body">♻️</div>
+        <div class="bin-hint">Informática<br>e telefonia</div>
+      </div>
+      <div class="bin bin-marrom" data-cat="marrom" onclick="Game.shoot('marrom')">
+        <div class="bin-label">LINHA MARROM</div>
+        <div class="bin-lid marrom-lid"></div>
+        <div class="bin-body">♻️</div>
+        <div class="bin-hint">Áudio e vídeo</div>
+      </div>
+      <div class="bin bin-branca" data-cat="branca" onclick="Game.shoot('branca')">
+        <div class="bin-label">LINHA BRANCA</div>
+        <div class="bin-lid branca-lid"></div>
+        <div class="bin-body">♻️</div>
+        <div class="bin-hint">Grandes<br>eletrodomésticos</div>
+      </div>
+    </div>
+
+    <!-- Overlay tela inicial / fim -->
+    <div id="overlay">
+      <div id="overlay-icon">♻️</div>
+      <h1 id="overlay-title">RECICLE!</h1>
+      <p id="overlay-msg">O canhão atira lixo eletrônico.<br>Clique na lixeira correta antes do tempo acabar!<br>Você tem <strong>5 vidas</strong>.</p>
+      <button id="overlay-btn" onclick="Game.start()">▶ INICIAR</button>
+    </div>
+
+  </div><!-- /game-area -->
+</div><!-- /game-wrapper -->
+
+<script src="game.js"></script>
+</body>
+</html>
