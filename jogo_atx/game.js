@@ -54,7 +54,6 @@ const DOM = {
   nextEmoji:    document.getElementById('next-emoji'),
   cannonCart:   document.getElementById('cannon-cart'),
   cannonBarrel: document.getElementById('cannon-barrel'),
-  aimCanvas:    document.getElementById('aim-line'),
   gameArea:     document.getElementById('game-area'),
 };
 
@@ -68,22 +67,13 @@ let state = {
   nextItem: null,
   timerInterval: null,
   timeLeft: 0,
-  targetCat: null,   // lixeira alvo da mira atual
+  targetCat: null,   // lixeira alvo (usado apenas para posicionamento)
 };
 
 // ════════════════════════════════════════
 //  UTILITÁRIOS
 // ════════════════════════════════════════
 function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 // ════════════════════════════════════════
 //  VIDAS (corações)
@@ -97,59 +87,6 @@ function updateLives() {
 }
 
 // ════════════════════════════════════════
-//  MIRA — canvas tracejado do canhão até lixeira
-// ════════════════════════════════════════
-function drawAimLine(cat) {
-  const canvas = DOM.aimCanvas;
-  const ga     = DOM.gameArea.getBoundingClientRect();
-  canvas.width  = ga.width;
-  canvas.height = ga.height;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (!cat) return;
-
-  // ponta do canhão (base do carrinho)
-  const cart   = DOM.cannonCart.getBoundingClientRect();
-  const sx     = cart.left - ga.left + cart.width / 2;
-  const sy     = cart.top  - ga.top  + cart.height;
-
-  // centro da lixeira alvo
-  const binEl  = document.querySelector(`.bin-${cat} .bin-body`);
-  if (!binEl) return;
-  const br     = binEl.getBoundingClientRect();
-  const tx     = br.left - ga.left + br.width / 2;
-  const ty     = br.top  - ga.top;
-
-  ctx.save();
-  ctx.setLineDash([8, 6]);
-  ctx.lineWidth = 1.5;
-  ctx.strokeStyle = catColor(cat, 0.55);
-  ctx.shadowColor = catColor(cat, 0.4);
-  ctx.shadowBlur  = 6;
-  ctx.beginPath();
-  ctx.moveTo(sx, sy);
-  ctx.lineTo(tx, ty);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function clearAim() {
-  const canvas = DOM.aimCanvas;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function catColor(cat, alpha = 1) {
-  const map = {
-    azul:   `rgba(33, 150, 243, ${alpha})`,
-    verde:  `rgba(76, 175, 80,  ${alpha})`,
-    marrom: `rgba(121, 85, 72,  ${alpha})`,
-    branca: `rgba(180, 180, 180,${alpha})`,
-  };
-  return map[cat] || `rgba(255,255,255,${alpha})`;
-}
-
-// ════════════════════════════════════════
 //  POSICIONAR CARRINHO DO CANHÃO
 // ════════════════════════════════════════
 function moveCannon(cat) {
@@ -160,7 +97,6 @@ function moveCannon(cat) {
 function resetCannon() {
   DOM.cannonCart.style.left = '50%';
   DOM.cannonBarrel.style.transform = 'none';
-  clearAim();
 }
 
 // ════════════════════════════════════════
@@ -219,7 +155,6 @@ function shoot(cat) {
 
   // 1. Mover canhão para a lixeira
   moveCannon(cat);
-  drawAimLine(cat);
 
   // 2. Inclinação do cano (leve)
   const tilt = (BIN_POSITIONS[cat] - 50) * 0.8;
@@ -265,7 +200,6 @@ function fireProjectile(cat, binEl, correct) {
 
   setTimeout(() => {
     proj.remove();
-    clearAim();
     if (correct) onCorrect(cat, binEl);
     else         onWrong(binEl);
   }, 360);
@@ -405,13 +339,12 @@ function startGame() {
   loadNext();
 }
 
-// ── Hover nas lixeiras: mostrar mira prévia ──
+// ── Hover nas lixeiras: apenas move o canhão (sem linha tracejada) ──
 document.querySelectorAll('.bin').forEach(bin => {
   const cat = bin.dataset.cat;
   bin.addEventListener('mouseenter', () => {
     if (!state.running || state.locked) return;
     moveCannon(cat);
-    drawAimLine(cat);
   });
   bin.addEventListener('mouseleave', () => {
     if (!state.running || state.locked) return;

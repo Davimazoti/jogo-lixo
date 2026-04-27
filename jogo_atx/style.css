@@ -109,7 +109,6 @@ body {
   box-shadow: 0 0 50px #0033ff18, inset 0 0 60px #00000060;
 }
 
-/* background com grid tech */
 #bg {
   position: absolute; inset: 0;
   background:
@@ -219,7 +218,6 @@ body {
   pointer-events: none;
 }
 
-/* trilho / trilha horizontal */
 #cannon-rail {
   width: 100%;
   height: 20px;
@@ -232,7 +230,6 @@ body {
   position: relative;
 }
 
-/* parafusos decorativos do trilho */
 #cannon-rail::before,
 #cannon-rail::after {
   content: '';
@@ -246,7 +243,6 @@ body {
 #cannon-rail::before { left: 12px; }
 #cannon-rail::after  { right: 12px; }
 
-/* carrinho que desliza pelo trilho */
 #cannon-cart {
   position: absolute;
   left: 50%;
@@ -257,7 +253,6 @@ body {
   transition: left 0.35s cubic-bezier(.4, 0, .2, 1);
 }
 
-/* corpo/base do canhão */
 #cannon-base {
   width: 56px;
   height: 26px;
@@ -279,7 +274,6 @@ body {
   border: 1px solid #37474f;
 }
 
-/* cano — aponta PARA BAIXO */
 #cannon-barrel {
   width: 28px;
   height: 56px;
@@ -289,7 +283,7 @@ body {
   border-top: none;
   box-shadow: inset 0 4px 8px #00000050, 0 0 10px #00bcd430;
   position: relative;
-  order: 1; /* fica abaixo da base */
+  order: 1;
   z-index: 1;
   transform-origin: top center;
   transition: transform 0.2s cubic-bezier(.4, 0, .2, 1);
@@ -313,7 +307,6 @@ body {
   border-radius: 0 0 5px 5px;
 }
 
-/* item atual flutuando na ponta do canhão */
 #current-bubble {
   width: 48px; height: 48px;
   border-radius: 50%;
@@ -324,7 +317,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 26px;
-  order: 2; /* abaixo do cano */
+  order: 2;
   margin-top: 4px;
   animation: bubblePulse 1.2s ease-in-out infinite;
   position: relative;
@@ -336,23 +329,14 @@ body {
   50%       { transform: scale(1.1); box-shadow: 0 0 22px rgba(255,255,255,0.35); }
 }
 
-/* nome do item atual */
 #item-name-label {
-  margin-top: 6px;
-  font-size: 12px;
+  margin-top: 50px;
+  font-size: 40px;
   font-weight: 700;
   letter-spacing: 2px;
   color: #90a4ae;
   text-transform: uppercase;
   text-align: center;
-  pointer-events: none;
-}
-
-/* ── LINHA DE MIRA ── */
-#aim-line {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
   pointer-events: none;
 }
 
