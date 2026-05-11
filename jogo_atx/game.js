@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════
-   LIXO ELETRÔNICO — game.js
+   LIXO ELETRÔNICO — game.js (responsivo)
    ════════════════════════════════════════ */
 
 const ITEMS = [
@@ -35,8 +35,18 @@ const ITEMS = [
 // ── Posição X do canhão por lixeira (0–100 % da largura) ──
 const BIN_POSITIONS = { azul: 20, verde: 40, marrom: 60, branca: 80 };
 const MAX_ERRORS    = 5;
-const TIME_MAX      = 9000; // ms
 const SCORE_MAX     = 200;  // preenche barra 100%
+
+// ── Timer progressivo ──
+const TIME_INITIAL  = 9000;  // ms no primeiro item
+const TIME_MIN      = 3000;  // ms mínimo (nunca menos que isso)
+const TIME_DECAY    = 150;   // ms reduzidos a cada acerto
+
+// ── Pontuação por velocidade ──
+// Acertou nos primeiros 33% do tempo = +20, meio = +10, último terço = +5
+const SCORE_FAST    = 20;
+const SCORE_MID     = 10;
+const SCORE_SLOW    = 5;
 
 // ── Referências DOM ──
 const DOM = {
@@ -67,8 +77,16 @@ let state = {
   nextItem: null,
   timerInterval: null,
   timeLeft: 0,
-  targetCat: null,   // lixeira alvo (usado apenas para posicionamento)
+  timeMax: TIME_INITIAL,   // tempo atual (vai diminuindo)
+  hits: 0,                 // acertos consecutivos (para reduzir timer)
+  targetCat: null,
 };
+
+// ── Highscore persistido em localStorage ──
+let highScore = parseInt(localStorage.getItem('lixo_highscore') || '0', 10);
+
+// ── Detectar se é dispositivo touch ──
+const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 // ════════════════════════════════════════
 //  UTILITÁRIOS
@@ -100,18 +118,21 @@ function resetCannon() {
 }
 
 // ════════════════════════════════════════
-//  TIMER
+//  TIMER PROGRESSIVO
 // ════════════════════════════════════════
 function startTimer() {
   clearInterval(state.timerInterval);
-  state.timeLeft = TIME_MAX;
-  DOM.timerBar.style.width   = '100%';
+  state.timeLeft = state.timeMax;
+  DOM.timerBar.style.width      = '100%';
   DOM.timerBar.style.background = 'linear-gradient(to right, #1565c0, #00e5ff)';
+
+  // Mostra o tempo atual no indicador de velocidade
+  updateSpeedIndicator();
 
   const step = 80;
   state.timerInterval = setInterval(() => {
     state.timeLeft -= step;
-    const pct = Math.max(0, (state.timeLeft / TIME_MAX) * 100);
+    const pct = Math.max(0, (state.timeLeft / state.timeMax) * 100);
     DOM.timerBar.style.width = pct + '%';
 
     if (pct < 45) DOM.timerBar.style.background = 'linear-gradient(to right, #e65100, #ffd600)';
@@ -122,6 +143,19 @@ function startTimer() {
       if (!state.locked) onWrong(null);
     }
   }, step);
+}
+
+// Indicador de velocidade (mostra quanto tempo resta disponível)
+function updateSpeedIndicator() {
+  const el = document.getElementById('speed-indicator');
+  if (!el) return;
+  const secs = (state.timeMax / 1000).toFixed(1);
+  el.textContent = `⏱ ${secs}s`;
+
+  // Cor muda conforme a dificuldade aumenta
+  if (state.timeMax <= 4000)      el.style.color = '#ff1744';
+  else if (state.timeMax <= 6000) el.style.color = '#ffd600';
+  else                             el.style.color = '#00e5ff';
 }
 
 // ════════════════════════════════════════
@@ -167,7 +201,6 @@ function shoot(cat) {
 }
 
 function fireProjectile(cat, binEl, correct) {
-  // Criar projétil na ponta do canhão
   const proj = document.createElement('div');
   proj.className = 'projectile';
   proj.textContent = state.currentItem.emoji;
@@ -183,12 +216,10 @@ function fireProjectile(cat, binEl, correct) {
 
   DOM.gameArea.appendChild(proj);
 
-  // Destino: centro da lixeira
   const br  = binEl.getBoundingClientRect();
   const endX = br.left - ga.left + br.width / 2 - 23;
   const endY = br.top  - ga.top  + br.height / 2 - 23;
 
-  // Animação parabólica via Web Animations API
   const midX = (startX + endX) / 2;
   const midY = Math.min(startY, endY) - 30;
 
@@ -209,17 +240,35 @@ function fireProjectile(cat, binEl, correct) {
 //  RESULTADO — CORRETO
 // ════════════════════════════════════════
 function onCorrect(cat, binEl) {
-  state.score += 10;
+  // ── Pontuação por velocidade ──
+  const elapsed = state.timeMax - state.timeLeft;
+  const ratio   = elapsed / state.timeMax; // 0 = respondeu rapidíssimo, 1 = no limite
+
+  let pts, speedLabel, speedColor;
+  if (ratio <= 0.33) {
+    pts = SCORE_FAST; speedLabel = '⚡ RÁPIDO! +' + pts; speedColor = '#00e5ff';
+  } else if (ratio <= 0.66) {
+    pts = SCORE_MID;  speedLabel = '+' + pts;             speedColor = '#00ff88';
+  } else {
+    pts = SCORE_SLOW; speedLabel = '🐢 +' + pts;         speedColor = '#ffd600';
+  }
+
+  state.score += pts;
+  state.hits++;
+
   DOM.scoreVal.textContent     = state.score;
   DOM.scoreNumSide.textContent = state.score;
   const pct = Math.min(100, (state.score / SCORE_MAX) * 100);
   DOM.scoreFill.style.height = pct + '%';
 
+  // ── Timer progressivo: reduz a cada acerto ──
+  state.timeMax = Math.max(TIME_MIN, state.timeMax - TIME_DECAY);
+
   binEl.classList.add('hit-correct');
   setTimeout(() => binEl.classList.remove('hit-correct'), 500);
 
   spawnParticles(binEl);
-  spawnFloatScore(binEl, '+10', '#00ff88');
+  spawnFloatScore(binEl, speedLabel, speedColor);
 
   setTimeout(loadNext, 420);
 }
@@ -237,7 +286,6 @@ function onWrong(binEl) {
     setTimeout(() => binEl.classList.remove('hit-wrong'), 450);
     spawnFloatScore(binEl, '✕ ERROU', '#ef5350');
   } else {
-    // tempo esgotado — mostrar na tela
     spawnFloatScore(DOM.gameArea, '⏱ TEMPO!', '#ff9800', true);
   }
 
@@ -303,17 +351,77 @@ function endGame() {
   clearInterval(state.timerInterval);
   resetCannon();
 
-  const star = state.score >= 150 ? '🏆' : state.score >= 80 ? '🥈' : '♻️';
-  DOM.overlayTitle.textContent     = 'FIM DE JOGO!';
-  DOM.overlayTitle.style.color     = '#ffd600';
-  DOM.overlayTitle.style.textShadow = '0 0 24px #ffd600, 0 0 60px #ffd60040';
+  // Salva highscore
+  const isNewRecord = state.score > highScore;
+  if (isNewRecord) {
+    highScore = state.score;
+    localStorage.setItem('lixo_highscore', highScore);
+  }
+
+  // Ícone e título conforme pontuação
+  let star, titulo, corTitulo;
+  if (state.score >= 200)      { star = '🏆'; titulo = 'INCRÍVEL!';    corTitulo = '#ffd600'; }
+  else if (state.score >= 120) { star = '🥈'; titulo = 'MUITO BOM!';   corTitulo = '#00e5ff'; }
+  else if (state.score >= 60)  { star = '♻️'; titulo = 'FIM DE JOGO!'; corTitulo = '#00ff88'; }
+  else                          { star = '💀'; titulo = 'TENTE DE NOVO!'; corTitulo = '#ef5350'; }
+
+  DOM.overlayTitle.textContent      = titulo;
+  DOM.overlayTitle.style.color      = corTitulo;
+  DOM.overlayTitle.style.textShadow = `0 0 24px ${corTitulo}, 0 0 60px ${corTitulo}40`;
   document.getElementById('overlay-icon').textContent = star;
+
+  // Tempo médio por item
+  const avgTime = state.hits > 0
+    ? ((TIME_INITIAL - state.timeMax) / TIME_DECAY).toFixed(0)
+    : 0;
+
   DOM.overlayMsg.innerHTML = `
-    Pontuação final:<br>
-    <span style="font-family:'Orbitron',monospace;font-size:46px;color:#00ff88;
-    text-shadow:0 0 20px #00ff88">${state.score}</span><br>
-    Erros: <strong>${state.errors}</strong> de ${MAX_ERRORS}
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%">
+
+      <!-- Pontuação principal -->
+      <div style="font-family:'Orbitron',monospace;font-size:clamp(36px,8vw,58px);
+        color:#00ff88;text-shadow:0 0 24px #00ff88;line-height:1">
+        ${state.score}
+      </div>
+      <div style="color:#546e7a;font-size:13px;letter-spacing:2px;margin-top:-6px">PONTOS</div>
+
+      <!-- Linha divisória -->
+      <div style="width:80%;height:1px;background:linear-gradient(to right,transparent,#1e3356,transparent);margin:4px 0"></div>
+
+      <!-- Stats em linha -->
+      <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="font-family:'Orbitron',monospace;font-size:22px;color:#ffd600">${state.hits}</div>
+          <div style="color:#546e7a;font-size:10px;letter-spacing:1px">ACERTOS</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Orbitron',monospace;font-size:22px;color:#ef5350">${state.errors}</div>
+          <div style="color:#546e7a;font-size:10px;letter-spacing:1px">ERROS</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Orbitron',monospace;font-size:22px;color:#00e5ff">${(state.timeMax/1000).toFixed(1)}s</div>
+          <div style="color:#546e7a;font-size:10px;letter-spacing:1px">TEMPO FINAL</div>
+        </div>
+      </div>
+
+      <!-- Linha divisória -->
+      <div style="width:80%;height:1px;background:linear-gradient(to right,transparent,#1e3356,transparent);margin:4px 0"></div>
+
+      <!-- Highscore -->
+      <div style="text-align:center">
+        ${isNewRecord
+          ? `<div style="font-family:'Orbitron',monospace;font-size:13px;color:#ffd600;
+              text-shadow:0 0 12px #ffd600;letter-spacing:2px;animation:pulse 0.8s ease infinite alternate">
+              🏆 NOVO RECORDE!
+             </div>`
+          : `<div style="color:#546e7a;font-size:12px;letter-spacing:1px">
+              RECORDE: <span style="color:#ffd600;font-family:'Orbitron',monospace">${highScore}</span>
+             </div>`
+        }
+      </div>
+    </div>
   `;
+
   DOM.overlayBtn.textContent = '▶ JOGAR NOVAMENTE';
   DOM.overlay.style.display = 'flex';
 }
@@ -326,6 +434,8 @@ function startGame() {
   state.errors  = 0;
   state.running = true;
   state.locked  = false;
+  state.hits    = 0;
+  state.timeMax = TIME_INITIAL;  // reseta o timer progressivo
 
   DOM.scoreVal.textContent      = 0;
   DOM.scoreNumSide.textContent  = 0;
@@ -334,23 +444,26 @@ function startGame() {
   DOM.overlay.style.display     = 'none';
 
   updateLives();
+  updateSpeedIndicator();
 
   state.nextItem = rand(ITEMS);
   loadNext();
 }
 
-// ── Hover nas lixeiras: apenas move o canhão (sem linha tracejada) ──
-document.querySelectorAll('.bin').forEach(bin => {
-  const cat = bin.dataset.cat;
-  bin.addEventListener('mouseenter', () => {
-    if (!state.running || state.locked) return;
-    moveCannon(cat);
+// ── Hover nas lixeiras — apenas em dispositivos não-touch ──
+if (!isTouch) {
+  document.querySelectorAll('.bin').forEach(bin => {
+    const cat = bin.dataset.cat;
+    bin.addEventListener('mouseenter', () => {
+      if (!state.running || state.locked) return;
+      moveCannon(cat);
+    });
+    bin.addEventListener('mouseleave', () => {
+      if (!state.running || state.locked) return;
+      resetCannon();
+    });
   });
-  bin.addEventListener('mouseleave', () => {
-    if (!state.running || state.locked) return;
-    resetCannon();
-  });
-});
+}
 
 // ── Expor função de shoot globalmente (chamada pelo onclick do HTML) ──
 window.Game = { shoot, start: startGame };

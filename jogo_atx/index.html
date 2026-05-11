@@ -2,7 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Lixo Eletrônico — Recicle!</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
@@ -46,6 +49,7 @@
     <!-- Timer bar -->
     <div id="timer-bar-wrap">
       <div id="timer-bar"></div>
+      <div id="speed-indicator">⏱ 9.0s</div>
     </div>
 
     <!-- ── CANHÃO NO TOPO ── -->
@@ -73,25 +77,33 @@
 
     <!-- LIXEIRAS na base -->
     <div id="bins">
-      <div class="bin bin-azul"   data-cat="azul"   onclick="Game.shoot('azul')">
+      <div class="bin bin-azul"   data-cat="azul"
+           onclick="Game.shoot('azul')"
+           ontouchend="handleBinTouch(event,'azul')">
         <div class="bin-label">LINHA AZUL</div>
         <div class="bin-lid azul-lid"></div>
         <div class="bin-body">♻️</div>
         <div class="bin-hint">Eletrodomésticos<br>pequenos e ferramentas</div>
       </div>
-      <div class="bin bin-verde"  data-cat="verde"  onclick="Game.shoot('verde')">
+      <div class="bin bin-verde"  data-cat="verde"
+           onclick="Game.shoot('verde')"
+           ontouchend="handleBinTouch(event,'verde')">
         <div class="bin-label">LINHA VERDE</div>
         <div class="bin-lid verde-lid"></div>
         <div class="bin-body">♻️</div>
         <div class="bin-hint">Informática<br>e telefonia</div>
       </div>
-      <div class="bin bin-marrom" data-cat="marrom" onclick="Game.shoot('marrom')">
+      <div class="bin bin-marrom" data-cat="marrom"
+           onclick="Game.shoot('marrom')"
+           ontouchend="handleBinTouch(event,'marrom')">
         <div class="bin-label">LINHA MARROM</div>
         <div class="bin-lid marrom-lid"></div>
         <div class="bin-body">♻️</div>
         <div class="bin-hint">Áudio e vídeo</div>
       </div>
-      <div class="bin bin-branca" data-cat="branca" onclick="Game.shoot('branca')">
+      <div class="bin bin-branca" data-cat="branca"
+           onclick="Game.shoot('branca')"
+           ontouchend="handleBinTouch(event,'branca')">
         <div class="bin-label">LINHA BRANCA</div>
         <div class="bin-lid branca-lid"></div>
         <div class="bin-body">♻️</div>
@@ -111,5 +123,12 @@
 </div><!-- /game-wrapper -->
 
 <script src="game.js"></script>
+<script>
+  /* ── Tratamento de touch para evitar duplo disparo (touchend + click) ── */
+  function handleBinTouch(e, cat) {
+    e.preventDefault(); // cancela o click sintético do browser
+    Game.shoot(cat);
+  }
+</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════
-   LIXO ELETRÔNICO — style.css
+   LIXO ELETRÔNICO — style.css (responsivo)
    ════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
@@ -7,15 +7,18 @@
 /* ── RESET & BASE ── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
+html, body {
   background: #070b18;
   font-family: 'Rajdhani', sans-serif;
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Evitar scroll desnecessário no mobile */
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 /* ════════════════════════════════════════
@@ -25,6 +28,8 @@ body {
   position: relative;
   width: 920px;
   height: 600px;
+  max-width: 100vw;
+  max-height: 100dvh;
   display: flex;
   gap: 12px;
 }
@@ -39,6 +44,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 #recycle-icon {
@@ -194,7 +200,7 @@ body {
   background: #0d1525;
   border-radius: 3px;
   z-index: 28;
-  overflow: hidden;
+  overflow: visible;
 }
 #timer-bar {
   height: 100%;
@@ -202,6 +208,26 @@ body {
   background: linear-gradient(to right, #1565c0, #00e5ff);
   border-radius: 3px;
   transition: width 0.1s linear, background 0.4s;
+}
+
+/* Indicador de velocidade (tempo disponível atual) */
+#speed-indicator {
+  position: absolute;
+  right: 0;
+  top: -18px;
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 1px;
+  transition: color 0.4s;
+  pointer-events: none;
+}
+
+/* Animação de pulso para novo recorde */
+@keyframes pulse {
+  from { opacity: 1;   transform: scale(1); }
+  to   { opacity: 0.6; transform: scale(1.08); }
 }
 
 /* ════════════════════════════════════════
@@ -221,8 +247,7 @@ body {
 #cannon-rail {
   width: 100%;
   height: 20px;
-  background:
-    linear-gradient(180deg, #1a2a44 0%, #0d1830 100%);
+  background: linear-gradient(180deg, #1a2a44 0%, #0d1830 100%);
   border-top: 2px solid #2a4a7a;
   border-bottom: 2px solid #0a1020;
   display: flex;
@@ -383,7 +408,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 12px;
-  padding: 0 18px 0 18px;
+  padding: 0 18px;
   z-index: 22;
 }
 
@@ -396,6 +421,9 @@ body {
   cursor: pointer;
   position: relative;
   transition: transform 0.15s;
+  /* Touch mais responsivo */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 .bin:hover { transform: translateY(-6px); }
 .bin:active { transform: translateY(-2px) scale(0.97); }
@@ -461,18 +489,14 @@ body {
 .bin-branca .bin-hint  { color: #e0e0e0; }
 
 /* ── FEEDBACK DE ACERTO / ERRO ── */
-.bin-body.hit-correct {
-  animation: hitCorrect 0.45s ease;
-}
+.bin-body.hit-correct { animation: hitCorrect 0.45s ease; }
 @keyframes hitCorrect {
   0%   { transform: scale(1); }
   40%  { transform: scale(1.14); filter: brightness(1.8); }
   100% { transform: scale(1); filter: brightness(1); }
 }
 
-.bin-body.hit-wrong {
-  animation: hitWrong 0.4s ease;
-}
+.bin-body.hit-wrong { animation: hitWrong 0.4s ease; }
 @keyframes hitWrong {
   0%, 100% { transform: translateX(0); }
   20%  { transform: translateX(-7px); }
@@ -543,6 +567,7 @@ body {
   border-radius: 16px;
   backdrop-filter: blur(8px);
   gap: 16px;
+  padding: 20px;
 }
 
 #overlay-icon {
@@ -560,6 +585,7 @@ body {
   color: #00ff88;
   text-shadow: 0 0 24px #00ff88, 0 0 60px #00ff8840;
   letter-spacing: 6px;
+  text-align: center;
 }
 
 #overlay p {
@@ -583,10 +609,267 @@ body {
   letter-spacing: 3px;
   transition: all 0.25s;
   margin-top: 4px;
+  -webkit-tap-highlight-color: transparent;
 }
 #overlay-btn:hover {
   background: #00ff88;
   color: #070b18;
   box-shadow: 0 0 24px #00ff88;
   transform: scale(1.05);
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVO — TABLET (≤ 768px)
+   ════════════════════════════════════════ */
+@media (max-width: 768px) {
+  #game-wrapper {
+    width: 100vw;
+    height: 100dvh;
+    gap: 6px;
+    padding: 6px;
+  }
+
+  #sidebar {
+    width: 44px;
+    gap: 6px;
+  }
+
+  #recycle-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    border-width: 2px;
+  }
+
+  #score-bar-wrap {
+    width: 24px;
+  }
+
+  #score-bar-label {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+
+  #score-num-side {
+    font-size: 9px;
+  }
+
+  #game-area {
+    border-radius: 12px;
+  }
+
+  /* HUD menor */
+  .hud-pill {
+    font-size: 9px;
+    padding: 4px 8px;
+    gap: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  #lives-wrap {
+    font-size: 13px;
+    gap: 2px;
+  }
+
+  #timer-bar-wrap {
+    top: 40px;
+    left: 10px; right: 10px;
+  }
+
+  #speed-indicator { font-size: 8px; top: -15px; }
+
+  /* Canhão menor */
+  #cannon-wrap { top: 48px; }
+
+  #cannon-rail { height: 16px; }
+
+  #cannon-base {
+    width: 42px;
+    height: 20px;
+  }
+  #cannon-base::after {
+    width: 48px;
+    height: 6px;
+    bottom: -5px;
+  }
+
+  #cannon-barrel {
+    width: 22px;
+    height: 42px;
+  }
+
+  #barrel-ring { width: 26px; height: 6px; }
+  #barrel-tip  { width: 22px; height: 5px; }
+
+  #current-bubble {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+
+  #item-name-label {
+    font-size: 26px;
+    margin-top: 40px;
+    letter-spacing: 1px;
+  }
+
+  /* Próximo item */
+  #next-wrap  { top: 50px; right: 8px; }
+  #next-label { font-size: 7px; }
+  #next-box   { width: 36px; height: 36px; font-size: 18px; }
+
+  /* Lixeiras */
+  #bins {
+    height: 120px;
+    gap: 6px;
+    padding: 0 8px;
+  }
+
+  .bin-label { font-size: 8px; letter-spacing: 0.5px; }
+
+  .bin-lid  { width: 72px; height: 11px; }
+  .bin-body { width: 68px; height: 66px; font-size: 26px; }
+
+  .bin-hint { font-size: 7px; margin-top: 3px; }
+
+  /* Overlay */
+  #overlay h1   { font-size: 28px; letter-spacing: 3px; }
+  #overlay p    { font-size: 14px; }
+  #overlay-icon { font-size: 38px; }
+  #overlay-btn  { font-size: 11px; padding: 10px 28px; letter-spacing: 2px; }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVO — MOBILE PEQUENO (≤ 480px)
+   ════════════════════════════════════════ */
+@media (max-width: 480px) {
+  #game-wrapper {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  /* Esconde sidebar no mobile pequeno; pontos ficam no HUD */
+  #sidebar { display: none; }
+
+  #hud {
+    top: 6px;
+    padding: 0 8px;
+  }
+
+  .hud-pill {
+    font-size: 8px;
+    padding: 3px 7px;
+  }
+
+  #lives-wrap { font-size: 11px; gap: 1px; }
+
+  #timer-bar-wrap {
+    top: 36px;
+    left: 6px; right: 6px;
+    height: 4px;
+  }
+
+  #cannon-wrap { top: 44px; }
+  #cannon-rail { height: 14px; }
+
+  #cannon-base {
+    width: 36px;
+    height: 18px;
+    border-radius: 6px 6px 0 0;
+  }
+  #cannon-base::after {
+    width: 40px;
+    height: 5px;
+    bottom: -4px;
+  }
+
+  #cannon-barrel {
+    width: 18px;
+    height: 36px;
+  }
+
+  #barrel-ring { width: 22px; height: 5px; margin-bottom: 3px; }
+  #barrel-tip  { width: 18px; height: 4px; }
+
+  #current-bubble {
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+    margin-top: 3px;
+  }
+
+  #item-name-label {
+    font-size: 18px;
+    margin-top: 34px;
+    letter-spacing: 0.5px;
+  }
+
+  #next-wrap  { top: 44px; right: 6px; gap: 2px; }
+  #next-label { font-size: 6px; letter-spacing: 1px; }
+  #next-box   { width: 30px; height: 30px; font-size: 15px; border-radius: 6px; }
+
+  /* Lixeiras compactas mas jogáveis */
+  #bins {
+    height: 110px;
+    gap: 4px;
+    padding: 0 4px;
+  }
+
+  .bin { max-width: none; }
+  .bin-label { font-size: 7px; margin-bottom: 2px; }
+  .bin-lid   { width: 100%; max-width: 64px; height: 10px; }
+  .bin-body  { width: 100%; max-width: 58px; height: 58px; font-size: 22px; }
+  .bin-hint  { display: none; } /* esconde no mobile pequeno para ganhar espaço */
+
+  /* Overlay mobile */
+  #overlay { gap: 10px; }
+  #overlay-icon { font-size: 32px; }
+  #overlay h1   { font-size: 22px; letter-spacing: 2px; }
+  #overlay p    { font-size: 13px; line-height: 1.5; }
+  #overlay-btn  { font-size: 10px; padding: 9px 22px; }
+}
+
+/* ════════════════════════════════════════
+   LANDSCAPE MOBILE (altura pequena)
+   ════════════════════════════════════════ */
+@media (max-height: 500px) and (orientation: landscape) {
+  #game-wrapper { padding: 2px; gap: 4px; }
+
+  #sidebar { width: 36px; gap: 4px; }
+  #recycle-icon { width: 32px; height: 32px; font-size: 14px; }
+  #score-bar-label { display: none; }
+  #score-num-side { font-size: 8px; }
+
+  .hud-pill { font-size: 8px; padding: 2px 6px; }
+  #lives-wrap { font-size: 10px; }
+  #timer-bar-wrap { top: 30px; }
+
+  #cannon-wrap { top: 36px; }
+  #cannon-rail { height: 12px; }
+  #cannon-base { width: 32px; height: 15px; }
+  #cannon-barrel { width: 16px; height: 30px; }
+  #barrel-ring { width: 20px; height: 4px; }
+  #barrel-tip { width: 16px; height: 3px; }
+  #current-bubble { width: 28px; height: 28px; font-size: 14px; margin-top: 2px; }
+
+  #item-name-label { font-size: 14px; margin-top: 28px; }
+
+  #next-wrap { top: 36px; right: 4px; }
+  #next-box  { width: 26px; height: 26px; font-size: 13px; }
+  #next-label { display: none; }
+
+  #bins {
+    height: 90px;
+    gap: 4px;
+    padding: 0 4px;
+  }
+  .bin-label { font-size: 6px; }
+  .bin-lid   { width: 60px; height: 9px; }
+  .bin-body  { width: 56px; height: 52px; font-size: 20px; }
+  .bin-hint  { display: none; }
+
+  #overlay h1   { font-size: 20px; }
+  #overlay p    { font-size: 12px; }
+  #overlay-icon { font-size: 28px; }
+  #overlay-btn  { padding: 7px 18px; font-size: 10px; }
 }
